@@ -16,41 +16,41 @@
 </head>
 <body>
     <script>
-                    ((global) => {
-                global.LivenessSDK = new LivenessBuilder()
-                    .setCredential({
-                        clientId: 'YOUR_CLIENT_ID',
-                        secret: 'YOUR_SECRET',
-                    })
-                    .setInstruction(['look_left', 'look_right'], {
-                        commands: ['open_mouth'],
-                        seedLimit: 1,
-                    })
-                    .setProxyMiddleware({
-                        PassiveLiveness: {
-                            url: 'http://localhost:8888/liveness/face',
-                            headers: {
-                                'App-ID': '<replace-me-with-app-id>',
-                                'API-Key': '<replace-me-with-api-key>',
-                            },
+        ((global) => {
+            global.LivenessSDK = new LivenessBuilder()
+                .setCredential({
+                    clientId: 'YOUR_CLIENT_ID',
+                    secret: 'YOUR_SECRET',
+                })
+                .setInstruction(['look_left', 'look_right'], {
+                    commands: ['open_mouth'],
+                    seedLimit: 1,
+                })
+                .setProxyMiddleware({
+                    PassiveLiveness: {
+                        url: 'http://localhost:8888/liveness/face',
+                        headers: {
+                            'App-ID': '<replace-me-with-app-id>',
+                            'API-Key': '<replace-me-with-api-key>',
                         },
-                        License: {
-                            url: 'http://localhost:8888/license/{license_id}/check',
-                            headers: {
-                                'App-ID': '<replace-me-with-app-id>',
-                                'API-Key': '<replace-me-with-api-key>',
-                            },
+                    },
+                    License: {
+                        url: 'http://localhost:8888/license/{license_id}/check',
+                        headers: {
+                            'App-ID': '<replace-me-with-app-id>',
+                            'API-Key': '<replace-me-with-api-key>',
                         },
-                    })
-                    .setTimeout(60000)
-                    .setURL('./liveness')
-                    .setVirtualCameraLabel(['OBS', 'Virtual'])
-                    .build();
+                    },
+                })
+                .setTimeout(60000)
+                .setURL('./liveness')
+                .setVirtualCameraLabel(['OBS', 'Virtual'])
+                .build();
 
-                // Set up doLivenessVerification global function
+            // Set up doLivenessVerification global function
 
-                // Set up message receiver for Liveness WebSDK
-            })(window);
+            // Set up message receiver for Liveness WebSDK
+        })(window);
     </script>
 </body>
 </html>

@@ -39,7 +39,7 @@ func (h *ECIHandler) VerifyECI(c *fiber.Ctx) error {
 	code := *statusCode
 
 	if code == 400 || code == 403 || code == 409 || code == 422 || code == 429 || code == 500 {
-		return c.Status(fiber.StatusBadRequest).JSON(message)
+		return c.Status(code).JSON(message)
 	}
 
 	return c.JSON(message)

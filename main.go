@@ -39,8 +39,12 @@ func main() {
 	eciService := services.NewECIService(verihubClient, &ctx)
 	eciHandler := api.NewECIHandler(eciService, &ctx)
 
+	faceService := services.NewFaceServer(verihubClient, &ctx)
+	faceHabdler := api.NewFaceHandler(faceService, &ctx)
+
 	smsHandler.Route(apiG)
 	eciHandler.Route(apiG)
+	faceHabdler.Route(apiG)
 
 	if err := app.Listen(":3000"); err != nil {
 		panic(err)

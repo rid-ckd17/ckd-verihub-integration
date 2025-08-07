@@ -3,6 +3,7 @@ package verihub
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -22,14 +23,16 @@ func NewVirehubSdk(appId string, apiKey string, ctx *context.Context, mode int, 
 	return &VerihubSdk{AppID: appId, ApiKey: apiKey, Ctx: ctx, Mode: mode, URLV1: urlv1, URLV2: urlv2}
 }
 
-func (v *VerihubSdk) ClientRequest(data string, path string) ([]byte, *int, error) {
-	mode := ""
+func (v *VerihubSdk) clientRequest(mode string, data string, path string, version string) ([]byte, *int, error) {
 
-	if v.Mode == 0 {
-		mode = "/sandbox"
+	url := ""
+
+	if version == "v1" {
+		url = v.URLV1 + path + mode
+	} else if version == "v2" {
+		url = v.URLV2 + path + mode
 	}
 
-	url := v.URLV2 + path + mode
 	payload := strings.NewReader(data)
 	req, err := http.NewRequest("POST", url, payload)
 	if err != nil {
@@ -48,16 +51,75 @@ func (v *VerihubSdk) ClientRequest(data string, path string) ([]byte, *int, erro
 
 	defer res.Body.Close()
 	body, _ := io.ReadAll(res.Body)
+	fmt.Println(string(body))
 	return body, &res.StatusCode, nil
 }
 
+func (v *VerihubSdk) EnrollFace(face models.Face) (*models.FaceDataResponse, *int, error) {
+	mode := ""
+
+	if v.Mode == 0 {
+		mode = ""
+	}
+
+	parse, err := json.Marshal(&face)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	body, statusCode, err := v.clientRequest(mode, string(parse), "/face/enroll", "v1")
+	if err != nil {
+		return nil, statusCode, err
+	}
+
+	var data models.FaceDataResponse
+
+	if err := json.Unmarshal(body, &data); err != nil {
+		return nil, statusCode, err
+	}
+
+	return &data, statusCode, nil
+}
+
+func (v *VerihubSdk) DetectFaceLiveness(face models.Face) (*models.FaceDetectResponse, *int, error) {
+	mode := ""
+
+	if v.Mode == 0 {
+		mode = ""
+	}
+
+	parse, err := json.Marshal(&face)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	body, statusCode, err := v.clientRequest(mode, string(parse), "/face/liveness", "v1")
+	if err != nil {
+		return nil, statusCode, err
+	}
+
+	var data models.FaceDetectResponse
+
+	if err := json.Unmarshal(body, &data); err != nil {
+		return nil, statusCode, err
+	}
+
+	return &data, statusCode, nil
+}
+
 func (v *VerihubSdk) SendSMSOTP(smsOtp models.RequestSmsOtp) (*models.ResponseSendOtp, *int, error) {
+	mode := ""
+
+	if v.Mode == 0 {
+		mode = "/sandbox"
+	}
+
 	parse, err := json.Marshal(&smsOtp)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	body, statusCode, err := v.ClientRequest(string(parse), "/otp/send")
+	body, statusCode, err := v.clientRequest(mode, string(parse), "/otp/send", "v2")
 	if err != nil {
 		return nil, nil, err
 	}
@@ -72,12 +134,18 @@ func (v *VerihubSdk) SendSMSOTP(smsOtp models.RequestSmsOtp) (*models.ResponseSe
 }
 
 func (v *VerihubSdk) VerifyOTP(verify models.RequestVerifySmsOtp) (*models.ResponseMessage, *int, error) {
+	mode := ""
+
+	if v.Mode == 0 {
+		mode = "/sandbox"
+	}
+
 	parse, err := json.Marshal(verify)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	body, statusCode, err := v.ClientRequest(string(parse), "/otp/verify")
+	body, statusCode, err := v.clientRequest(mode, string(parse), "/otp/verify", "v2")
 	if err != nil {
 		return nil, nil, err
 	}
@@ -92,12 +160,18 @@ func (v *VerihubSdk) VerifyOTP(verify models.RequestVerifySmsOtp) (*models.Respo
 }
 
 func (v *VerihubSdk) ECIVerification(data models.VerificationData) (*interface{}, *int, error) {
+	mode := ""
+
+	if v.Mode == 0 {
+		mode = "/sandbox"
+	}
+
 	parse, err := json.Marshal(data)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	body, statusCode, err := v.ClientRequest(string(parse), "/data-verification/certificate-electronic")
+	body, statusCode, err := v.clientRequest(mode, string(parse), "/data-verification/certificate-electronic", "v2")
 	if err != nil {
 		return nil, nil, err
 	}
