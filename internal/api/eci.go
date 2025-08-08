@@ -2,9 +2,11 @@ package api
 
 import (
 	"context"
+	"errors"
 	"testapiverihub/internal/models"
 	"testapiverihub/internal/services"
 
+	"github.com/danielgtaylor/huma/v2"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -17,8 +19,10 @@ func NewECIHandler(eciser *services.ECIService, ctx *context.Context) *ECIHandle
 	return &ECIHandler{ECIService: eciser, Ctx: ctx}
 }
 
-func (h *ECIHandler) Route(api fiber.Router) {
+func (h *ECIHandler) Route(api fiber.Router, appx huma.API) {
 	api.Post("/eci-verify", h.VerifyECI)
+
+	huma.Post(appx, "/eci-verify", h.VerifyECIHandler)
 }
 
 func (h *ECIHandler) VerifyECI(c *fiber.Ctx) error {
@@ -43,4 +47,20 @@ func (h *ECIHandler) VerifyECI(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(message)
+}
+
+func (h *ECIHandler) VerifyECIHandler(ctx context.Context, input *models.VerificationData) (*models.ResponseSucessVefification, error) {
+
+	message, statusCode, err := h.ECIService.Verification(*input)
+	if err != nil {
+		return nil, huma.NewError(500, "Kesalahan dari service", errors.New("wrong way"))
+	}
+
+	code := *statusCode
+
+	if code == 400 || code == 403 || code == 409 || code == 422 || code == 429 || code == 500 {
+		return nil, huma.NewError(code, "Kesalahan dari service", errors.New("wrong way"))
+	}
+
+	return message, nil
 }

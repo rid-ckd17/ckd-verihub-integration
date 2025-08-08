@@ -7,6 +7,8 @@ import (
 	"testapiverihub/internal/services"
 	"time"
 
+	"github.com/danielgtaylor/huma/v2"
+	"github.com/danielgtaylor/huma/v2/adapters/humafiber"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 )
@@ -23,6 +25,14 @@ const (
 	UrlV2  = "https://api.verihubs.com/v2"
 )
 
+type HelloInput struct {
+	Name string `query:"name" doc:"Nama untuk sapaan."`
+}
+
+type HelloOutput struct {
+	Body string `json:"body"`
+}
+
 func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -30,7 +40,15 @@ func main() {
 	app := fiber.New()
 	app.Use(logger.New())
 
+	appX := humafiber.New(app, huma.DefaultConfig("API Root", "1.0.0"))
+
+	huma.Get(appX, "/", func(ctx context.Context, i *HelloInput) (*HelloOutput, error) {
+		return &HelloOutput{Body: "Hello"}, nil
+	})
+
 	apiG := app.Group("/api")
+	apiX := humafiber.NewWithGroup(app, apiG, huma.DefaultConfig("API Group", "1.0.0"))
+
 	verihubClient := verihub.NewVirehubSdk(AppID, ApiKey, &ctx, Sandbox, UrlV1, UrlV2)
 
 	smsService := services.NewSmsOtpService(verihubClient, &ctx)
@@ -42,9 +60,9 @@ func main() {
 	faceService := services.NewFaceServer(verihubClient, &ctx)
 	faceHabdler := api.NewFaceHandler(faceService, &ctx)
 
-	smsHandler.Route(apiG)
-	eciHandler.Route(apiG)
-	faceHabdler.Route(apiG)
+	smsHandler.Route(apiG, apiX)
+	eciHandler.Route(apiG, apiX)
+	faceHabdler.Route(apiG, apiX)
 
 	if err := app.Listen(":3000"); err != nil {
 		panic(err)

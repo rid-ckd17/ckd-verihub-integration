@@ -5,6 +5,7 @@ import (
 	"testapiverihub/internal/models"
 	"testapiverihub/internal/services"
 
+	"github.com/danielgtaylor/huma/v2"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -17,7 +18,7 @@ func NewSmsOTPHandler(smsOtpService *services.SmsOTPService, ctx *context.Contex
 	return &SmsOTPHandler{SmSOTPService: smsOtpService, Ctx: ctx}
 }
 
-func (h *SmsOTPHandler) Route(api fiber.Router) {
+func (h *SmsOTPHandler) Route(api fiber.Router, ap huma.API) {
 	api.Post("/sendotp", h.SendOTP)
 	api.Post("/verifyotp", h.VeriFyOTP)
 }

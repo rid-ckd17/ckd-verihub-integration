@@ -5,6 +5,7 @@ import (
 	"testapiverihub/internal/models"
 	"testapiverihub/internal/services"
 
+	"github.com/danielgtaylor/huma/v2"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -17,7 +18,7 @@ func NewFaceHandler(faceSer *services.FaceService, ctx *context.Context) *FaceHa
 	return &FaceHandler{FaceService: faceSer, Ctx: ctx}
 }
 
-func (h *FaceHandler) Route(api fiber.Router) {
+func (h *FaceHandler) Route(api fiber.Router, appx huma.API) {
 	api.Post("/faceenroll", h.EnrollFace)
 	api.Post("/faceliveness", h.DetectFaceLiveness)
 }

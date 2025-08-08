@@ -159,7 +159,7 @@ func (v *VerihubSdk) VerifyOTP(verify models.RequestVerifySmsOtp) (*models.Respo
 	return &resMessage, statusCode, nil
 }
 
-func (v *VerihubSdk) ECIVerification(data models.VerificationData) (*interface{}, *int, error) {
+func (v *VerihubSdk) ECIVerification(data models.VerificationData) (*models.ResponseSucessVefification, *int, error) {
 	mode := ""
 
 	if v.Mode == 0 {
@@ -176,7 +176,7 @@ func (v *VerihubSdk) ECIVerification(data models.VerificationData) (*interface{}
 		return nil, nil, err
 	}
 
-	var resData interface{}
+	var resData models.ResponseSucessVefification
 	if err := json.Unmarshal([]byte(body), &resData); err != nil {
 		return nil, nil, err
 	}

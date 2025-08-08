@@ -15,7 +15,7 @@ func NewECIService(verihub *verihub.VerihubSdk, ctx *context.Context) *ECIServic
 	return &ECIService{VeriHub: verihub, Ctx: ctx}
 }
 
-func (s *ECIService) Verification(verData models.VerificationData) (*interface{}, *int, error) {
+func (s *ECIService) Verification(verData models.VerificationData) (*models.ResponseSucessVefification, *int, error) {
 	resData, statusCode, err := s.VeriHub.ECIVerification(verData)
 	if err != nil {
 		return nil, nil, err

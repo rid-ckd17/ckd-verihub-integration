@@ -4,6 +4,8 @@ go 1.24.5
 
 require (
 	github.com/andybalholm/brotli v1.2.0 // indirect
+	github.com/danielgtaylor/huma/v2 v2.34.1 // indirect
+	github.com/gofiber/adaptor/v2 v2.2.1 // indirect
 	github.com/gofiber/fiber/v2 v2.52.9 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
