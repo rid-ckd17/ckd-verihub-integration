@@ -54,7 +54,6 @@ func (v *VerihubSdk) clientRequest(mode string, data string, path string, versio
 
 	defer res.Body.Close()
 	body, _ := io.ReadAll(res.Body)
-	fmt.Println(string(body))
 	return body, &res.StatusCode, nil
 }
 
