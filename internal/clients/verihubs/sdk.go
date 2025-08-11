@@ -15,12 +15,13 @@ type VerihubSdk struct {
 	ApiKey string
 	URLV1  string
 	URLV2  string
+	URL    string
 	Ctx    *context.Context
 	Mode   int
 }
 
-func NewVirehubSdk(appId string, apiKey string, ctx *context.Context, mode int, urlv1 string, urlv2 string) *VerihubSdk {
-	return &VerihubSdk{AppID: appId, ApiKey: apiKey, Ctx: ctx, Mode: mode, URLV1: urlv1, URLV2: urlv2}
+func NewVirehubSdk(appId string, apiKey string, ctx *context.Context, mode int, urlv1 string, urlv2 string, url string) *VerihubSdk {
+	return &VerihubSdk{AppID: appId, ApiKey: apiKey, Ctx: ctx, Mode: mode, URLV1: urlv1, URLV2: urlv2, URL: url}
 }
 
 func (v *VerihubSdk) clientRequest(mode string, data string, path string, version string) ([]byte, *int, error) {
@@ -31,6 +32,8 @@ func (v *VerihubSdk) clientRequest(mode string, data string, path string, versio
 		url = v.URLV1 + path + mode
 	} else if version == "v2" {
 		url = v.URLV2 + path + mode
+	} else {
+		url = v.URL + path + mode
 	}
 
 	payload := strings.NewReader(data)
@@ -171,12 +174,38 @@ func (v *VerihubSdk) ECIVerification(data models.VerificationData) (*models.Resp
 		return nil, nil, err
 	}
 
-	body, statusCode, err := v.clientRequest(mode, string(parse), "/data-verification/certificate-electronic", "v2")
+	body, statusCode, err := v.clientRequest(mode, string(parse), "/ktp/id/extract-async", "v2")
 	if err != nil {
 		return nil, nil, err
 	}
 
 	var resData models.ResponseSucessVefification
+	if err := json.Unmarshal([]byte(body), &resData); err != nil {
+		return nil, nil, err
+	}
+
+	fmt.Println("ResponseX:", resData)
+	return &resData, statusCode, nil
+}
+
+func (v *VerihubSdk) ExtractAsyncKTP(extract models.KTPExtract) (*interface{}, *int, error) {
+	mode := ""
+
+	if v.Mode == 0 {
+		mode = ""
+	}
+
+	parse, err := json.Marshal(extract)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	body, statusCode, err := v.clientRequest(mode, string(parse), "/ktp/id/extract-async", "")
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var resData interface{}
 	if err := json.Unmarshal([]byte(body), &resData); err != nil {
 		return nil, nil, err
 	}

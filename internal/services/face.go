@@ -2,16 +2,20 @@ package services
 
 import (
 	"context"
-	verihub "testapiverihub/internal/clients/verihubs"
 	"testapiverihub/internal/models"
 )
 
+type VerihubSdkInterface interface {
+	EnrollFace(face models.Face) (*models.FaceDataResponse, *int, error)
+	DetectFaceLiveness(face models.Face) (*models.FaceDetectResponse, *int, error)
+}
+
 type FaceService struct {
-	VeriHub *verihub.VerihubSdk
+	VeriHub VerihubSdkInterface
 	Ctx     *context.Context
 }
 
-func NewFaceServer(verihub *verihub.VerihubSdk, ctx *context.Context) *FaceService {
+func NewFaceServer(verihub VerihubSdkInterface, ctx *context.Context) *FaceService {
 	return &FaceService{VeriHub: verihub, Ctx: ctx}
 }
 
